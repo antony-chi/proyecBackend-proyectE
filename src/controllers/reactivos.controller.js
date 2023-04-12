@@ -2,6 +2,7 @@ import modelosInit from "../models/init-models.js"
 import { sequelize } from "../database/database.js";
 let models = modelosInit(sequelize);
 
+//obtener reactivos
 export const getReactivos = async (req,res) =>{
     let response;
     try {
@@ -13,7 +14,7 @@ export const getReactivos = async (req,res) =>{
     }
     res.status(200).json(response);
 }
-
+//crear reactivo
 export const createReactivo = async (req,res) =>{
     let {descripcion,nombre_examen,area_id} = req.body;
     let response;
@@ -30,7 +31,7 @@ export const createReactivo = async (req,res) =>{
     }
     res.status(200).json(response);
 }
-
+//editar reactivo con id 
 export const editarReactivo = async (req,res) =>{
     let {id} = req.params;
     let {descripcion,nombre_examen,area_id} = req.body;
@@ -72,3 +73,23 @@ export const eliminarReactivo = async (req,res) =>{
     }
     res.status(200).json(response);
 };
+
+//generarExamen
+export const generarExamen = async (req,res) =>{
+    let consulta;
+    let numeroRandon;
+    try {
+        consulta = await models.reactivos.findAll()
+        numeroRandon = getRandomInt(consulta.length);
+    } catch (error) {
+        console.log("Hubo un error: " + error)
+        res.status(500).json({"Error": "Hubo un error, " + error})
+        return;
+    }
+
+    res.status(200).json(consulta[numeroRandon]);
+};
+
+const getRandomInt = (max) => {
+    return Math.floor(Math.random() * max)
+}
