@@ -74,20 +74,48 @@ export const eliminarReactivo = async (req,res) =>{
     res.status(200).json(response);
 };
 
-//generarExamen
+//generarExamen para ello
+//01 Generar el aleatorio
+//02 Obtener las respuestas
+//03 Generar un objeto examen
+//04 Un numero de preguntas fijo (5,10,3)
 export const generarExamen = async (req,res) =>{
     let consulta;
     let numeroRandon;
+    let numero_preguntas = req.params.preguntas; 
+    let preguntasObtenidos = []
     try {
-        consulta = await models.reactivos.findAll()
-        numeroRandon = getRandomInt(consulta.length);
+        consulta = await models.reactivos.findAll({
+            attributes: {exclude:['id_reactivo', 'area_id']},
+            include:{
+                model: models.respuestas,
+                as: "respuesta",
+                attributes: {exclude:['id_respuesta', 'reactivo_id']}
+            }
+        })
+
+        if(numero_preguntas > consulta.length){
+            console.log(`No se cuentan con ${numero_preguntas} preguntas, intenta con un numero menor`)
+            res.status(500).json({"Error": `No se cuenta con ${numero_preguntas} preguntas en la BDA, actualmente hay ${consulta.length} preguntas en BDA`})
+            return;
+        }
+        for (let i = 0; i < numero_preguntas; i++) {
+            numeroRandon = 0;
+            numeroRandon = getRandomInt(consulta.length);
+            if(typeof consulta[numeroRandon] === 'undefined'){
+                i--;
+            }else{
+                preguntasObtenidos.push(consulta[numeroRandon]);
+                delete(consulta[numeroRandon])
+            }
+        }
     } catch (error) {
         console.log("Hubo un error: " + error)
         res.status(500).json({"Error": "Hubo un error, " + error})
         return;
     }
 
-    res.status(200).json(consulta[numeroRandon]);
+    res.status(200).json(preguntasObtenidos);
 };
 
 const getRandomInt = (max) => {
