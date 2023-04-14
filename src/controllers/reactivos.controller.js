@@ -1,7 +1,6 @@
 import modelosInit from "../models/init-models.js"
 import { sequelize } from "../database/database.js";
 import { Op } from "sequelize";
-import respuestas from "../models/respuestas.js";
 let models = modelosInit(sequelize);
 
 //obtener reactivos
